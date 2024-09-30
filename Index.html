@@ -24,7 +24,7 @@
         input {
             padding: 10px;
             margin: 10px;
-            width: 80px;
+            width: 160px;
         }
         button {
             padding: 10px 20px;
@@ -40,29 +40,78 @@
 <body>
     <div class="container">
         <h2>Calculadora Estrela para Triângulo</h2>
-        <p>Insira as impedâncias no esquema estrela (Za, Zb, Zc):</p>
-        <input type="number" id="za" placeholder="Za (Ω)" step="any"> 
-        <input type="number" id="zb" placeholder="Zb (Ω)" step="any"> 
-        <input type="number" id="zc" placeholder="Zc (Ω)" step="any">
+        <p>Insira as impedâncias no esquema estrela (Za, Zb, Zc) no formato a ± jb:</p>
+        <input type="text" id="za" placeholder="Za (ex: 60 - j64.53)"> 
+        <input type="text" id="zb" placeholder="Zb (ex: 60 + j64.53)"> 
+        <input type="text" id="zc" placeholder="Zc (ex: 60 - j64.53)">
         <br>
         <button onclick="calcular()">Calcular</button>
         <p id="resultado"></p>
     </div>
 
     <script>
-        function calcular() {
-            var za = parseFloat(document.getElementById('za').value);
-            var zb = parseFloat(document.getElementById('zb').value);
-            var zc = parseFloat(document.getElementById('zc').value);
+        function parseComplex(str) {
+            var parts = str.replace(/\s+/g, '').match(/^([+-]?\d*\.?\d*)([+-]j\d*\.?\d*)$/i);
+            if (parts) {
+                return { 
+                    real: parseFloat(parts[1]),
+                    imag: parseFloat(parts[2].replace('j', '')) 
+                };
+            }
+            return null;
+        }
 
-            var z1 = (za * zb + zb * zc + zc * za) / zb;
-            var z2 = (za * zb + zb * zc + zc * za) / zc;
-            var z3 = (za * zb + zb * zc + zc * za) / za;
+        function addComplex(z1, z2) {
+            return { real: z1.real + z2.real, imag: z1.imag + z2.imag };
+        }
+
+        function multComplex(z1, z2) {
+            return {
+                real: z1.real * z2.real - z1.imag * z2.imag,
+                imag: z1.real * z2.imag + z1.imag * z2.real
+            };
+        }
+
+        function divComplex(z1, z2) {
+            var denom = z2.real * z2.real + z2.imag * z2.imag;
+            return {
+                real: (z1.real * z2.real + z1.imag * z2.imag) / denom,
+                imag: (z1.imag * z2.real - z1.real * z2.imag) / denom
+            };
+        }
+
+        function complexToString(z) {
+            var imagPart = z.imag >= 0 ? '+ j' + z.imag.toFixed(2) : '- j' + (-z.imag).toFixed(2);
+            return z.real.toFixed(2) + ' ' + imagPart;
+        }
+
+        function calcular() {
+            var za = parseComplex(document.getElementById('za').value);
+            var zb = parseComplex(document.getElementById('zb').value);
+            var zc = parseComplex(document.getElementById('zc').value);
+
+            if (!za || !zb || !zc) {
+                document.getElementById('resultado').innerHTML = "Erro: Insira as impedâncias corretamente.";
+                return;
+            }
+
+            var z1 = divComplex(
+                addComplex(multComplex(za, zb), addComplex(multComplex(zb, zc), multComplex(zc, za))),
+                zb
+            );
+            var z2 = divComplex(
+                addComplex(multComplex(za, zb), addComplex(multComplex(zb, zc), multComplex(zc, za))),
+                zc
+            );
+            var z3 = divComplex(
+                addComplex(multComplex(za, zb), addComplex(multComplex(zb, zc), multComplex(zc, za))),
+                za
+            );
 
             document.getElementById('resultado').innerHTML = 
-                "Z1 (AB) = " + z1.toFixed(2) + " Ω<br>" +
-                "Z2 (BC) = " + z2.toFixed(2) + " Ω<br>" +
-                "Z3 (CA) = " + z3.toFixed(2) + " Ω";
+                "Z1 (AB) = " + complexToString(z1) + " Ω<br>" +
+                "Z2 (BC) = " + complexToString(z2) + " Ω<br>" +
+                "Z3 (CA) = " + complexToString(z3) + " Ω";
         }
     </script>
 </body>
