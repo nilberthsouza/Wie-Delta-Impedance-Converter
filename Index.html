@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Impedância Estrela-Triângulo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 80px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculadora Estrela para Triângulo</h2>
+        <p>Insira as impedâncias no esquema estrela (Za, Zb, Zc):</p>
+        <input type="number" id="za" placeholder="Za (Ω)" step="any"> 
+        <input type="number" id="zb" placeholder="Zb (Ω)" step="any"> 
+        <input type="number" id="zc" placeholder="Zc (Ω)" step="any">
+        <br>
+        <button onclick="calcular()">Calcular</button>
+        <p id="resultado"></p>
+    </div>
+
+    <script>
+        function calcular() {
+            var za = parseFloat(document.getElementById('za').value);
+            var zb = parseFloat(document.getElementById('zb').value);
+            var zc = parseFloat(document.getElementById('zc').value);
+
+            var z1 = (za * zb + zb * zc + zc * za) / zb;
+            var z2 = (za * zb + zb * zc + zc * za) / zc;
+            var z3 = (za * zb + zb * zc + zc * za) / za;
+
+            document.getElementById('resultado').innerHTML = 
+                "Z1 (AB) = " + z1.toFixed(2) + " Ω<br>" +
+                "Z2 (BC) = " + z2.toFixed(2) + " Ω<br>" +
+                "Z3 (CA) = " + z3.toFixed(2) + " Ω";
+        }
+    </script>
+</body>
+</html>
